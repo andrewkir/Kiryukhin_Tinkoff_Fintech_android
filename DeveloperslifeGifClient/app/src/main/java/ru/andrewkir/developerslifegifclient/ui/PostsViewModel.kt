@@ -4,12 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ru.andrewkir.developerslifegifclient.data.api.PostsApi
 import ru.andrewkir.developerslifegifclient.data.api.PostsRepository
 import ru.andrewkir.developerslifegifclient.data.model.PostInfo
-import ru.andrewkir.developerslifegifclient.utils.ButtonVisibilityHolder
 import ru.andrewkir.developerslifegifclient.utils.ResponseWithStatus
 import ru.andrewkir.developerslifegifclient.utils.SectionsEnum
 
@@ -19,13 +16,13 @@ class PostsViewModel(private val postsRepository: PostsRepository) : ViewModel()
     val loading: LiveData<Boolean?>
         get() = mutableLoading
 
-    private val mutableErrorResponse: MutableLiveData<ResponseWithStatus.OnErrorResponse> =
+    private val mutableErrorResponse: MutableLiveData<ResponseWithStatus.OnErrorResponse?> =
         MutableLiveData()
-    val errorResponse: LiveData<ResponseWithStatus.OnErrorResponse>
+    val errorResponse: LiveData<ResponseWithStatus.OnErrorResponse?>
         get() = mutableErrorResponse
 
-    private lateinit var section: SectionsEnum
-    private val posts = mutableListOf<PostInfo>()
+    private lateinit var currentSection: SectionsEnum
+    private val displayedPosts = mutableListOf<PostInfo>()
     private var currentPost = 0
     private var postsAmount = 0
     private var page = 0
@@ -46,57 +43,89 @@ class PostsViewModel(private val postsRepository: PostsRepository) : ViewModel()
         get() = mutablePostLiveData
 
 
-    private fun getPosts() {
-        viewModelScope.launch {
-            mutableLoading.value = true
-            when (val result = postsRepository.getPosts(section, page)) {
-                is ResponseWithStatus.OnSuccessResponse -> {
-                    val listPosts = result.value.result
-                    if (listPosts != null && !posts.containsAll(listPosts)
-                    ) {
-                        posts.addAll(listPosts)
+    fun getPosts() {
+        when (currentSection) {
+            SectionsEnum.random -> {
+                viewModelScope.launch {
+                    mutableLoading.value = true
+                    when (val result = postsRepository.getRandomPost()) {
+                        is ResponseWithStatus.OnSuccessResponse -> {
+                            mutableLoading.value = false
+                            displayedPosts.add(result.value)
+                            updatePostUI()
+                            mutableErrorResponse.value = null
+                        }
+                        is ResponseWithStatus.OnErrorResponse -> {
+                            //TODO CHECK ERRORS
+                            mutableLoading.value = false
+                            mutableErrorResponse.value = result
+                        }
                     }
-                    postsAmount = result.value.totalCount ?: 0
-                }
-                is ResponseWithStatus.OnErrorResponse -> {
-                    mutableErrorResponse.value = result
                 }
             }
-            mutableLoading.value = false
-            updatePost()
+            else -> {
+                viewModelScope.launch {
+                    mutableLoading.value = true
+                    when (val result = postsRepository.getPosts(currentSection, page)) {
+                        is ResponseWithStatus.OnSuccessResponse -> {
+                            mutableLoading.value = false
+                            val listPosts = result.value.result
+                            if (listPosts != null && !displayedPosts.containsAll(listPosts)
+                            ) {
+                                displayedPosts.addAll(listPosts)
+                            }
+                            postsAmount = result.value.totalCount ?: 0
+                            updatePostUI()
+                            mutableErrorResponse.value = null
+                        }
+                        is ResponseWithStatus.OnErrorResponse -> {
+                            //TODO CHECK ERRORS
+                            mutableLoading.value = false
+                            mutableErrorResponse.value = result
+                        }
+                    }
+                }
+            }
         }
     }
 
+
+
     fun nextPost() {
-        if (currentPost + 1 >= posts.size) {
-            page++
-            getPosts()
+        currentPost++
+        if (currentPost < postsAmount || currentSection == SectionsEnum.random) {
+            if (currentPost >= displayedPosts.size) {
+                page++
+                getPosts()
+            } else {
+                updatePostUI()
+            }
         } else {
-            currentPost++
-            updatePost()
+            currentPost--
         }
     }
 
     fun previousPost() {
         if (currentPost > 0) {
             currentPost--
-            updatePost()
+            updatePostUI()
         }
     }
 
-    private fun updatePost() {
-        if (currentPost < posts.size) mutablePostLiveData.value = posts[currentPost]
-        if (posts.size == 0) {
+    private fun updatePostUI() {
+        if (currentPost < displayedPosts.size) mutablePostLiveData.value = displayedPosts[currentPost]
+        if (displayedPosts.size == 0) {
             mutablePostLiveData.value = null
         }
 
         mutableBackButtonVisibility.value = currentPost != 0
-        mutableForwardButtonVisibility.value = currentPost + 1 < postsAmount
+        mutableForwardButtonVisibility.value =
+            currentPost + 1 < postsAmount || currentSection == SectionsEnum.random //Если категория "случайные", то кнопка всегда активна
     }
 
     fun init(section: SectionsEnum) {
-        if (posts.size == 0) {
-            this.section = section
+        if (displayedPosts.size == 0) {
+            this.currentSection = section
             getPosts()
         }
     }

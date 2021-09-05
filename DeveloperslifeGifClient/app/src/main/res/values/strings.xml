@@ -1,7 +1,8 @@
 <resources>
-    <string name="app_name">DeveloperslifeGifClient</string>
+    <string name="app_name">AndroidFintech</string>
     <string-array
         name="tab_titles">
+        <item>Случайные</item>
         <item>Последние</item>
         <item>Горячие</item>
         <item>Лучшие</item>

@@ -1,8 +1,7 @@
 package ru.andrewkir.developerslifegifclient
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 import ru.andrewkir.developerslifegifclient.ui.ViewPagerAdapter

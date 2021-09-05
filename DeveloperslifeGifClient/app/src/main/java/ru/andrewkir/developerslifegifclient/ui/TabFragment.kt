@@ -1,6 +1,5 @@
 package ru.andrewkir.developerslifegifclient.ui
 
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,13 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.bumptech.glide.request.RequestListener
@@ -22,10 +19,8 @@ import com.bumptech.glide.request.target.Target
 import kotlinx.android.synthetic.main.fragment_tab.*
 import ru.andrewkir.developerslifegifclient.R
 import ru.andrewkir.developerslifegifclient.data.api.ApiBuilder
-import ru.andrewkir.developerslifegifclient.data.api.ApiService
 import ru.andrewkir.developerslifegifclient.data.api.PostsApi
 import ru.andrewkir.developerslifegifclient.databinding.FragmentTabBinding
-import ru.andrewkir.developerslifegifclient.utils.ResponseWithStatus
 import ru.andrewkir.developerslifegifclient.utils.SectionsEnum
 import ru.andrewkir.developerslifegifclient.utils.ViewModelFactory
 
@@ -50,17 +45,10 @@ class TabFragment : Fragment() {
 
         observePost()
         observeError()
+        observeLoading()
         observeButtonsVisibility()
 
         setupButtons()
-
-        binding.gifHolder.setOnClickListener {
-            viewModel.nextPost()
-        }
-
-        binding.textView.setOnClickListener {
-            viewModel.previousPost()
-        }
     }
 
     private fun processArguments() {
@@ -82,9 +70,12 @@ class TabFragment : Fragment() {
     private fun observePost() {
         context?.let {
             viewModel.postLiveData.observe(viewLifecycleOwner, { post ->
+                binding.mainLayout.visibility = View.VISIBLE
+                binding.networkErrorLayout.visibility = View.GONE
+
                 if (post == null) {
                     showErrorPicture()
-                    binding.textView.text = "Посты закончились :("
+                    binding.descriptionTextView.text = "Посты закончились :("
                 } else post.run {
                     binding.loadingBar.visibility = View.VISIBLE
                     Glide.with(it)
@@ -95,7 +86,7 @@ class TabFragment : Fragment() {
                                 "https://"
                             )
                         )
-                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE) //TODO CHECK after
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .listener(object : RequestListener<GifDrawable> {
                             override fun onLoadFailed(
                                 e: GlideException?,
@@ -122,9 +113,11 @@ class TabFragment : Fragment() {
                                 return false
                             }
                         })
+                        .override(300)
                         .transition(withCrossFade())
+                        .centerCrop()
                         .into(binding.gifHolder)
-                    binding.textView.text = post.description
+                    binding.descriptionTextView.text = post.description
                 }
             })
         }
@@ -133,29 +126,43 @@ class TabFragment : Fragment() {
     private fun observeError() {
         binding.loadingBar.visibility = View.GONE
         viewModel.errorResponse.observe(viewLifecycleOwner, { error ->
-            showErrorPicture()
-            if (error.isNetworkFailure) {
-                Toast.makeText(context, "Отсутствует подключение к интернету", Toast.LENGTH_SHORT)
-                    .show()
-            } else {
-                Toast.makeText(context, error.body?.string(), Toast.LENGTH_SHORT).show()
+            if (error != null) {
+                showErrorPicture()
+                if (error.isNetworkFailure) {
+                    binding.mainLayout.visibility = View.GONE
+                    binding.networkErrorLayout.visibility = View.VISIBLE
+                } else {
+                    Toast.makeText(context, error.body, Toast.LENGTH_SHORT).show()
+                }
             }
         })
     }
 
     private fun observeButtonsVisibility() {
         viewModel.backButtonVisibility.observe(viewLifecycleOwner, {
-            backButton.isEnabled = it
+            backButton.isClickable = it
         })
         viewModel.forwardButtonVisibility.observe(viewLifecycleOwner, {
-            forwardButton.isEnabled = it
+            forwardButton.isClickable = it
+        })
+    }
+
+    private fun observeLoading() {
+        viewModel.loading.observe(viewLifecycleOwner, {
+            it?.run {
+                binding.loadingBar.visibility = if (this) View.VISIBLE else View.GONE
+                binding.errorLoadingBar.visibility = binding.loadingBar.visibility
+
+                binding.backButton.isClickable = !it
+                binding.forwardButton.isClickable = !it
+            }
         })
     }
 
     private fun showErrorPicture() {
         context?.let {
             Glide.with(it)
-                .load(R.drawable.ic_no_image)
+                .load(R.drawable.ic_hide_image)
                 .transition(withCrossFade())
                 .into(binding.gifHolder)
         }
@@ -165,6 +172,7 @@ class TabFragment : Fragment() {
         binding.let {
             forwardButton.setOnClickListener { viewModel.nextPost() }
             backButton.setOnClickListener { viewModel.previousPost() }
+            retryButton.setOnClickListener { viewModel.getPosts() }
         }
     }
 

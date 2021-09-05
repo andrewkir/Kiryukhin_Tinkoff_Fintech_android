@@ -1,9 +1,7 @@
 package ru.andrewkir.developerslifegifclient.utils
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import ru.andrewkir.developerslifegifclient.data.api.ApiService
 import ru.andrewkir.developerslifegifclient.data.api.PostsApi
 import ru.andrewkir.developerslifegifclient.data.api.PostsRepository
 import ru.andrewkir.developerslifegifclient.ui.PostsViewModel

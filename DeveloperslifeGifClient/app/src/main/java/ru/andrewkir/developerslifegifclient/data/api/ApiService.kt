@@ -8,4 +8,8 @@ import ru.andrewkir.developerslifegifclient.data.model.Posts
 interface ApiService {
     @GET("{section}/{page}?json=true")
     suspend fun getPosts(@Path("section") section: String, @Path("page") page: Int): Posts
+
+
+    @GET("random?json=true")
+    suspend fun getRandomPost(): PostInfo
 }

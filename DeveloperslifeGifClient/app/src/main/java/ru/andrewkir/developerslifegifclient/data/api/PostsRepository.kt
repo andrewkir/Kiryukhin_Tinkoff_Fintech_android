@@ -12,6 +12,8 @@ class PostsRepository(private val api: PostsApi) {
     suspend fun getPosts(section: SectionsEnum, page: Int = 0) =
         protectedCall { api.getPosts(section, page) }
 
+    suspend fun getRandomPost() = protectedCall { api.getRandomPost() }
+
     private suspend fun <T> protectedCall(
         api: suspend () -> T
     ): ResponseWithStatus<T> {
@@ -21,17 +23,22 @@ class PostsRepository(private val api: PostsApi) {
             } catch (ex: Throwable) {
                 when (ex) {
                     is HttpException -> {
-                        ResponseWithStatus.OnErrorResponse(
-                            false,
-                            ex.code(),
-                            ex.response()?.errorBody()
-                        )
-                    }
-                    is SocketTimeoutException -> {
-                        ResponseWithStatus.OnErrorResponse(false, null, null)
+                        try {
+                            ResponseWithStatus.OnErrorResponse(
+                                false,
+                                ex.code(),
+                                ex.response()?.errorBody()?.string()
+                            )
+                        } catch (exception: Throwable) {
+                            ResponseWithStatus.OnErrorResponse(
+                                false,
+                                null,
+                                "Ошибка на стороне сервера"
+                            )
+                        }
                     }
                     is JsonSyntaxException -> {
-                        ResponseWithStatus.OnErrorResponse(false, null, null)
+                        ResponseWithStatus.OnErrorResponse(false, null, ex.message)
                     }
                     else -> {
                         ResponseWithStatus.OnErrorResponse(true, null, null)
