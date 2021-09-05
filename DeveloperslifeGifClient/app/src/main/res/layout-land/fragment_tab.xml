@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,8 +8,7 @@
         android:id="@+id/networkErrorLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        tools:visibility="gone">
+        android:visibility="gone">
 
         <ProgressBar
             android:id="@+id/errorLoadingBar"
@@ -27,6 +25,7 @@
             android:id="@+id/imageView"
             android:layout_width="100dp"
             android:layout_height="70dp"
+            android:contentDescription="@string/crossed_cloud_network_error"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -39,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Произошла ошибка при загрузке данных. Проверьте подключение к сети"
+            android:text="@string/fragment_network_error"
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="@+id/imageView"
             app:layout_constraintStart_toStartOf="@+id/imageView"
@@ -51,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Повторить"
+            android:text="@string/fragment_network_button_text"
             app:layout_constraintEnd_toEndOf="@+id/networkErrorTextView"
             app:layout_constraintStart_toStartOf="@+id/networkErrorTextView"
             app:layout_constraintTop_toBottomOf="@+id/networkErrorTextView" />
@@ -84,6 +83,7 @@
                     android:id="@+id/gifHolder"
                     android:layout_width="320dp"
                     android:layout_height="320dp"
+                    android:contentDescription="@string/gif_container_content"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -106,6 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="32dp"
             android:backgroundTint="@color/white"
+            android:contentDescription="@string/back_button_content"
             app:borderWidth="0dp"
             app:layout_constraintBottom_toBottomOf="@+id/cardView"
             app:layout_constraintEnd_toStartOf="@+id/cardView"
@@ -136,6 +137,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
             android:backgroundTint="@color/white"
+            android:contentDescription="@string/forward_button_content"
             app:borderWidth="0dp"
             app:layout_constraintBottom_toBottomOf="@+id/cardView"
             app:layout_constraintStart_toEndOf="@+id/cardView"

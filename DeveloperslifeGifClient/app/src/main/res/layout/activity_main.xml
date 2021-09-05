@@ -10,7 +10,8 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Developers Life"
+        android:layout_marginTop="8dp"
+        android:text="@string/developers_life"
         android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -22,20 +23,20 @@
         android:id="@+id/tabLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/fragmentScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tabLayout"
-        android:fillViewport="true">
+        app:layout_constraintTop_toBottomOf="@+id/tabLayout">
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/fragmentsViewPager"

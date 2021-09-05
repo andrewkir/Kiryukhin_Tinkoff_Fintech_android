@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">AndroidFintech</string>
+    <string name="fragment_network_error">Произошла ошибка при загрузке данных. Проверьте подключение к сети</string>
+    <string name="fragment_network_button_text">Повторить</string>
+    <string name="forward_button_content">Forward button</string>
+    <string name="back_button_content">Back button</string>
+    <string name="gif_container_content">Gif container</string>
+    <string name="crossed_cloud_network_error">crossed cloud network error</string>
+    <string name="developers_life">Developers Life</string>
     <string-array
         name="tab_titles">
         <item>Случайные</item>

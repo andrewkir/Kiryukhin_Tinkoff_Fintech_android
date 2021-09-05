@@ -26,6 +26,9 @@ import ru.andrewkir.developerslifegifclient.utils.ViewModelFactory
 import android.content.Intent
 import android.net.Uri
 
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+
 
 class TabFragment : Fragment() {
 
@@ -121,7 +124,14 @@ class TabFragment : Fragment() {
                         .centerCrop()
                         .into(binding.gifHolder)
 
+                    binding.descriptionTextView.startAnimation(
+                        AnimationUtils.loadAnimation(
+                            context, android.R.anim.fade_in
+                        )
+                    )
+
                     binding.descriptionTextView.text = post.description
+
                     binding.gifHolder.setOnClickListener {
                         val url = "https://developerslife.ru/${post.id}"
                         val intent = Intent(Intent.ACTION_VIEW)

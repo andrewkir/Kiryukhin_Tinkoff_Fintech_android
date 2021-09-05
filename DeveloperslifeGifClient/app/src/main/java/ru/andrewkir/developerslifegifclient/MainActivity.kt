@@ -3,7 +3,7 @@ package ru.andrewkir.developerslifegifclient
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.activity_main.*
+import ru.andrewkir.developerslifegifclient.databinding.ActivityMainBinding
 import ru.andrewkir.developerslifegifclient.ui.ViewPagerAdapter
 
 class MainActivity : AppCompatActivity() {
@@ -11,11 +11,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         adapter = ViewPagerAdapter(this)
-        fragmentsViewPager.adapter = adapter
-        TabLayoutMediator(tabLayout, fragmentsViewPager) { tab, position ->
+        binding.fragmentsViewPager.adapter = adapter
+        TabLayoutMediator(binding.tabLayout, binding.fragmentsViewPager) { tab, position ->
             val titlesArray = resources.getStringArray(R.array.tab_titles)
             tab.text = titlesArray[position % titlesArray.size]
         }.attach()
