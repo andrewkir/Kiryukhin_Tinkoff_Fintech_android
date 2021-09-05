@@ -26,7 +26,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget" />
+        app:tabTextAppearance="@style/TabLayoutStyle" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/fragmentScrollView"

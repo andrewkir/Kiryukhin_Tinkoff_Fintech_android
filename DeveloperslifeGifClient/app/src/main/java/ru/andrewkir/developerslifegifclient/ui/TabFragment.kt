@@ -1,10 +1,13 @@
 package ru.andrewkir.developerslifegifclient.ui
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -16,18 +19,12 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withC
 import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import kotlinx.android.synthetic.main.fragment_tab.*
 import ru.andrewkir.developerslifegifclient.R
 import ru.andrewkir.developerslifegifclient.data.api.ApiBuilder
 import ru.andrewkir.developerslifegifclient.data.api.PostsApi
 import ru.andrewkir.developerslifegifclient.databinding.FragmentTabBinding
 import ru.andrewkir.developerslifegifclient.utils.SectionsEnum
 import ru.andrewkir.developerslifegifclient.utils.ViewModelFactory
-import android.content.Intent
-import android.net.Uri
-
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 
 
 class TabFragment : Fragment() {
@@ -40,7 +37,7 @@ class TabFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentTabBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -81,7 +78,7 @@ class TabFragment : Fragment() {
 
                 if (post == null) {
                     showErrorPicture()
-                    binding.descriptionTextView.text = "Посты закончились :("
+                    binding.descriptionTextView.text = getString(R.string.error_empty_posts)
                 } else post.run {
                     binding.loadingBar.visibility = View.VISIBLE
                     Glide.with(it)
@@ -102,7 +99,7 @@ class TabFragment : Fragment() {
                             ): Boolean {
                                 Toast.makeText(
                                     context,
-                                    "Не удалось загрузить GIF",
+                                    getString(R.string.error_gif_loading),
                                     Toast.LENGTH_SHORT
                                 ).show()
                                 return false
@@ -124,12 +121,12 @@ class TabFragment : Fragment() {
                         .centerCrop()
                         .into(binding.gifHolder)
 
+                    //Смена текста описания с анимацией
                     binding.descriptionTextView.startAnimation(
                         AnimationUtils.loadAnimation(
                             context, android.R.anim.fade_in
                         )
                     )
-
                     binding.descriptionTextView.text = post.description
 
                     binding.gifHolder.setOnClickListener {
@@ -160,10 +157,10 @@ class TabFragment : Fragment() {
 
     private fun observeButtonsVisibility() {
         viewModel.backButtonVisibility.observe(viewLifecycleOwner, {
-            backButton.isClickable = it
+            binding.backButton.isClickable = it
         })
         viewModel.forwardButtonVisibility.observe(viewLifecycleOwner, {
-            forwardButton.isClickable = it
+            binding.forwardButton.isClickable = it
         })
     }
 
@@ -188,7 +185,7 @@ class TabFragment : Fragment() {
     }
 
     private fun setupButtons() {
-        binding.let {
+        binding.run {
             forwardButton.setOnClickListener { viewModel.nextPost() }
             backButton.setOnClickListener { viewModel.previousPost() }
             retryButton.setOnClickListener { viewModel.requestPosts() }
@@ -203,7 +200,6 @@ class TabFragment : Fragment() {
             args.putInt(PAGE_NUMBER, pageNumber)
             val fragment = TabFragment()
             fragment.arguments = args
-            Log.d("CREATED FRAGMENT", "CREATED")
             return fragment
         }
     }

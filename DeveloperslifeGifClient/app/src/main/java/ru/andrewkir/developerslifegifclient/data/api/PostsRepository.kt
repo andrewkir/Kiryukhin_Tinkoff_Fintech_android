@@ -6,7 +6,6 @@ import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import ru.andrewkir.developerslifegifclient.utils.ResponseWithStatus
 import ru.andrewkir.developerslifegifclient.utils.SectionsEnum
-import java.net.SocketTimeoutException
 
 class PostsRepository(private val api: PostsApi) {
     suspend fun getPosts(section: SectionsEnum, page: Int = 0) =

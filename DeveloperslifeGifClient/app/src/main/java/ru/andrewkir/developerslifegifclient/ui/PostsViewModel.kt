@@ -13,6 +13,12 @@ import ru.andrewkir.developerslifegifclient.utils.SectionsEnum
 
 class PostsViewModel(private val postsRepository: PostsRepository) : ViewModel() {
 
+    private lateinit var currentSection: SectionsEnum
+    private val displayedPosts = mutableListOf<PostInfo>()
+    private var currentPost = 0
+    private var postsAmount = 0
+    private var page = 0
+
     private val mutableLoading: MutableLiveData<Boolean?> = MutableLiveData()
     val loading: LiveData<Boolean?>
         get() = mutableLoading
@@ -21,12 +27,6 @@ class PostsViewModel(private val postsRepository: PostsRepository) : ViewModel()
         MutableLiveData()
     val errorResponse: LiveData<ResponseWithStatus.OnErrorResponse?>
         get() = mutableErrorResponse
-
-    private lateinit var currentSection: SectionsEnum
-    private val displayedPosts = mutableListOf<PostInfo>()
-    private var currentPost = 0
-    private var postsAmount = 0
-    private var page = 0
 
     //Для каждой из кнопок будем использовать отдельную liveData
     private val mutableBackButtonVisibility: MutableLiveData<Boolean> =
@@ -62,7 +62,6 @@ class PostsViewModel(private val postsRepository: PostsRepository) : ViewModel()
                     mutableErrorResponse.value = null
                 }
                 is ResponseWithStatus.OnErrorResponse -> {
-                    //TODO CHECK ERRORS
                     mutableLoading.value = false
                     mutableErrorResponse.value = result
                 }
@@ -86,7 +85,6 @@ class PostsViewModel(private val postsRepository: PostsRepository) : ViewModel()
                     mutableErrorResponse.value = null
                 }
                 is ResponseWithStatus.OnErrorResponse -> {
-                    //TODO CHECK ERRORS
                     mutableLoading.value = false
                     mutableErrorResponse.value = result
                 }

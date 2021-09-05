@@ -11,20 +11,12 @@ object ApiBuilder {
     private const val BASE_URL = "https://developerslife.ru/"
 
     private fun getRetrofit(): Retrofit {
+        //logging
         val logging = HttpLoggingInterceptor()
-// set your desired log level
-// set your desired log level
         logging.level = HttpLoggingInterceptor.Level.BODY
 
         val httpClient = OkHttpClient.Builder()
-// add your other interceptors …
-
-// add logging as last interceptor
-// add your other interceptors …
-
-// add logging as last interceptor
-        httpClient.addInterceptor(logging) // <-- this is the important line!
-
+        httpClient.addInterceptor(logging)
 
         return Retrofit.Builder()
             .baseUrl(BASE_URL)

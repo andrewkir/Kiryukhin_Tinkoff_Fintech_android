@@ -7,6 +7,8 @@
     <string name="gif_container_content">Gif container</string>
     <string name="crossed_cloud_network_error">crossed cloud network error</string>
     <string name="developers_life">Developers Life</string>
+    <string name="error_empty_posts">Посты закончились :(</string>
+    <string name="error_gif_loading">Не удалось загрузить GIF</string>
     <string-array
         name="tab_titles">
         <item>Случайные</item>
