@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.andrewkir.developerslifegifclient.data.api.PostsRepository
 import ru.andrewkir.developerslifegifclient.data.model.PostInfo
@@ -43,60 +44,62 @@ class PostsViewModel(private val postsRepository: PostsRepository) : ViewModel()
         get() = mutablePostLiveData
 
 
-    fun getPosts() {
+    fun requestPosts() {
         when (currentSection) {
-            SectionsEnum.random -> {
-                viewModelScope.launch {
-                    mutableLoading.value = true
-                    when (val result = postsRepository.getRandomPost()) {
-                        is ResponseWithStatus.OnSuccessResponse -> {
-                            mutableLoading.value = false
-                            displayedPosts.add(result.value)
-                            updatePostUI()
-                            mutableErrorResponse.value = null
-                        }
-                        is ResponseWithStatus.OnErrorResponse -> {
-                            //TODO CHECK ERRORS
-                            mutableLoading.value = false
-                            mutableErrorResponse.value = result
-                        }
-                    }
+            SectionsEnum.random -> getRandomPost()
+            else -> getPosts()
+        }
+    }
+
+    private fun getRandomPost() {
+        viewModelScope.launch {
+            mutableLoading.value = true
+            when (val result = postsRepository.getRandomPost()) {
+                is ResponseWithStatus.OnSuccessResponse -> {
+                    mutableLoading.value = false
+                    displayedPosts.add(result.value)
+                    updatePostUI()
+                    mutableErrorResponse.value = null
                 }
-            }
-            else -> {
-                viewModelScope.launch {
-                    mutableLoading.value = true
-                    when (val result = postsRepository.getPosts(currentSection, page)) {
-                        is ResponseWithStatus.OnSuccessResponse -> {
-                            mutableLoading.value = false
-                            val listPosts = result.value.result
-                            if (listPosts != null && !displayedPosts.containsAll(listPosts)
-                            ) {
-                                displayedPosts.addAll(listPosts)
-                            }
-                            postsAmount = result.value.totalCount ?: 0
-                            updatePostUI()
-                            mutableErrorResponse.value = null
-                        }
-                        is ResponseWithStatus.OnErrorResponse -> {
-                            //TODO CHECK ERRORS
-                            mutableLoading.value = false
-                            mutableErrorResponse.value = result
-                        }
-                    }
+                is ResponseWithStatus.OnErrorResponse -> {
+                    //TODO CHECK ERRORS
+                    mutableLoading.value = false
+                    mutableErrorResponse.value = result
                 }
             }
         }
     }
 
-
+    private fun getPosts() {
+        viewModelScope.launch {
+            mutableLoading.value = true
+            when (val result = postsRepository.getPosts(currentSection, page)) {
+                is ResponseWithStatus.OnSuccessResponse -> {
+                    mutableLoading.value = false
+                    val listPosts = result.value.result
+                    if (listPosts != null && !displayedPosts.containsAll(listPosts)
+                    ) {
+                        displayedPosts.addAll(listPosts)
+                    }
+                    postsAmount = result.value.totalCount ?: 0
+                    updatePostUI()
+                    mutableErrorResponse.value = null
+                }
+                is ResponseWithStatus.OnErrorResponse -> {
+                    //TODO CHECK ERRORS
+                    mutableLoading.value = false
+                    mutableErrorResponse.value = result
+                }
+            }
+        }
+    }
 
     fun nextPost() {
         currentPost++
         if (currentPost < postsAmount || currentSection == SectionsEnum.random) {
             if (currentPost >= displayedPosts.size) {
                 page++
-                getPosts()
+                requestPosts()
             } else {
                 updatePostUI()
             }
@@ -113,7 +116,8 @@ class PostsViewModel(private val postsRepository: PostsRepository) : ViewModel()
     }
 
     private fun updatePostUI() {
-        if (currentPost < displayedPosts.size) mutablePostLiveData.value = displayedPosts[currentPost]
+        if (currentPost < displayedPosts.size) mutablePostLiveData.value =
+            displayedPosts[currentPost]
         if (displayedPosts.size == 0) {
             mutablePostLiveData.value = null
         }
@@ -126,7 +130,7 @@ class PostsViewModel(private val postsRepository: PostsRepository) : ViewModel()
     fun init(section: SectionsEnum) {
         if (displayedPosts.size == 0) {
             this.currentSection = section
-            getPosts()
+            requestPosts()
         }
     }
 }

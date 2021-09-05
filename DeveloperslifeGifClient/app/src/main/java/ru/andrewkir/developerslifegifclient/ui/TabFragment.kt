@@ -23,6 +23,9 @@ import ru.andrewkir.developerslifegifclient.data.api.PostsApi
 import ru.andrewkir.developerslifegifclient.databinding.FragmentTabBinding
 import ru.andrewkir.developerslifegifclient.utils.SectionsEnum
 import ru.andrewkir.developerslifegifclient.utils.ViewModelFactory
+import android.content.Intent
+import android.net.Uri
+
 
 class TabFragment : Fragment() {
 
@@ -117,7 +120,14 @@ class TabFragment : Fragment() {
                         .transition(withCrossFade())
                         .centerCrop()
                         .into(binding.gifHolder)
+
                     binding.descriptionTextView.text = post.description
+                    binding.gifHolder.setOnClickListener {
+                        val url = "https://developerslife.ru/${post.id}"
+                        val intent = Intent(Intent.ACTION_VIEW)
+                        intent.data = Uri.parse(url)
+                        startActivity(intent)
+                    }
                 }
             })
         }
@@ -153,7 +163,6 @@ class TabFragment : Fragment() {
                 binding.loadingBar.visibility = if (this) View.VISIBLE else View.GONE
                 binding.errorLoadingBar.visibility = binding.loadingBar.visibility
 
-                binding.backButton.isClickable = !it
                 binding.forwardButton.isClickable = !it
             }
         })
@@ -172,7 +181,7 @@ class TabFragment : Fragment() {
         binding.let {
             forwardButton.setOnClickListener { viewModel.nextPost() }
             backButton.setOnClickListener { viewModel.previousPost() }
-            retryButton.setOnClickListener { viewModel.getPosts() }
+            retryButton.setOnClickListener { viewModel.requestPosts() }
         }
     }
 
